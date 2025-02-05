@@ -2,3 +2,8 @@ the number of "n" in this file is :
 6
 the number of lines in the file is :
 4
+
+foo b
+foo a
+foo
+foo d
