@@ -12,8 +12,8 @@
 
 #include "pipex.h"
 
-// ./pipex infile "ls -l" "wc -l" outfile
-// < infile ls -l | wc -l > outfile
+// ./pipex infile.txt "ls -l" "wc -l" outfile.txt
+// < infile.txt ls -l | wc -l > outfile.txt
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
@@ -41,18 +41,27 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 {
 	pipex->cmd1 = ft_split(pipex->arg1, ' ');
 	if (pipex->cmd1 == NULL)
+	{
 		ft_free_split(pipex->cmd1);
+		exit(EXIT_FAILURE);
+	}
 	if (access(pipex->cmd1[0], F_OK | X_OK) == 0)
 	{
 		pipex->path_cmd1 = ft_strdup(pipex->cmd1[0]);
 		if (pipex->path_cmd1 == NULL)
+		{
 			ft_free_split(pipex->cmd1);
+			exit(EXIT_FAILURE);
+		}
 	}
 	else
 	{
 		pipex->path_cmd1 = get_env_path(pipex->cmd1[0], envp, pipex);
 		if (pipex->path_cmd1 == NULL)
+		{
 			ft_free_split(pipex->cmd1);
+			exit(EXIT_FAILURE);
+		}
 	}
 }
 
@@ -72,7 +81,10 @@ void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
 	{
 		pipex->path_cmd2 = get_env_path(pipex->cmd2[0], envp, pipex);
 		if (pipex->cmd2 == NULL)
+		{
 			ft_clean_up(pipex);
+			exit(EXIT_FAILURE);
+		}
 	}
 }
 
@@ -92,34 +104,22 @@ char	*get_env_path(char *cmd, char **envp, t_pipex *pipex)
 	i = 0;
 	paths = ft_split(ft_find_path(envp), ':');
 	if (paths == NULL)
-	{
-		ft_free_split(paths);
-		ft_clean_up(pipex);
-		return (perror("Error: Could not split PATH environment variable"), NULL);
-	}
+		return (ft_free_split(paths), ft_clean_up(pipex), NULL);
 	while (paths[i])
 	{
 		temp = ft_strjoin(paths[i], "/");
 		if (temp == NULL)
-		{
-// add exit
-			ft_free_split(paths);
-			ft_clean_up(pipex);
-		}
+			return(ft_free_split(paths), ft_clean_up(pipex), NULL);
 		full_path = ft_strjoin(temp, cmd);
 		free(temp);
 		if (full_path == NULL)
-		{
-// add exit
-			ft_free_split(paths);
-			ft_clean_up(pipex);
-		}
+			return(ft_free_split(paths), ft_clean_up(pipex), NULL);
 		if (access(full_path, F_OK | X_OK) == 0)
 			return (ft_free_split(paths), full_path);
 		free(full_path);
 		i++;
 	}
-	perror("Error: command not found in PATH\n");
+	perror("Error: command not found\n");
 	return (ft_free_split(paths), NULL);
 }
 

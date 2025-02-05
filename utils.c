@@ -11,13 +11,13 @@ void	initial_struct(char **argv, t_pipex *pipex)
 	pipex->in_fd = open(pipex->infile, O_RDONLY);
 	if (pipex->in_fd == -1)
 	{
-		perror("Error: Could not open file\n");
+		perror("Error: No such file or Directory\n");
 		exit(EXIT_FAILURE);
 	}
-	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT);
+	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC);
 	if (pipex->out_fd == -1)
 	{
-		perror("Error: Could not open file\n");
+		perror("Error: No such file of Directory\n");
 		exit(EXIT_FAILURE);
 	}
 }
