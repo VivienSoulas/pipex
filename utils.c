@@ -68,7 +68,7 @@ void	ft_child2(t_pipex *pipex, char **envp)
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
 	{
-		ft_printf("bash: %s: No such file or directory\n", pipex->outfile);
+		ft_printf("Error: could not write in %s\n", pipex->outfile);
 		exit(EXIT_FAILURE);
 	}
 	dup2(pipex->pipe_fd[0], STDIN_FILENO);

@@ -65,7 +65,6 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 	}
 }
 
-/* write perror messaged and exit failure */
 void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
 {
 	pipex->cmd2 = ft_split(pipex->arg2, ' ');
