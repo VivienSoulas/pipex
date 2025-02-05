@@ -1,5 +1,6 @@
 #include "pipex.h"
 
+// Permissions: 0644 (rw-r--r--)
 void	initial_struct(char **argv, t_pipex *pipex)
 {
 	pipex->infile = argv[1];
@@ -8,18 +9,6 @@ void	initial_struct(char **argv, t_pipex *pipex)
 	pipex->outfile = argv[4];
 	pipex->cmd1 = NULL;
 	pipex->cmd2 = NULL;
-	pipex->in_fd = open(pipex->infile, O_RDONLY);
-	if (pipex->in_fd == -1)
-	{
-		perror("Error: No such file or Directory\n");
-		exit(EXIT_FAILURE);
-	}
-	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC);
-	if (pipex->out_fd == -1)
-	{
-		perror("Error: No such file of Directory\n");
-		exit(EXIT_FAILURE);
-	}
 }
 
 // create a pipe and check for errors
@@ -59,22 +48,34 @@ char	*ft_find_path(char **envp)
 //		pipe-fd[1] after duplication
 void	ft_child1(t_pipex *pipex, char **envp)
 {
+	pipex->in_fd = open(pipex->infile, O_RDONLY);
+	if (pipex->in_fd == -1)
+	{
+		ft_printf("bash: %s: No such file or directory\n", pipex->infile);
+		exit(EXIT_FAILURE);
+	}
 	dup2(pipex->in_fd, STDIN_FILENO);
 	dup2(pipex->pipe_fd[1], STDOUT_FILENO);
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
 	execve(pipex->path_cmd1, pipex->cmd1, envp);
-	perror("Error : execve failed\n");
-	exit(EXIT_FAILURE);
+	ft_clean_up(pipex);
+	exit(127);
 }
 
 void	ft_child2(t_pipex *pipex, char **envp)
 {
+	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (pipex->out_fd == -1)
+	{
+		ft_printf("bash: %s: No such file or directory\n", pipex->outfile);
+		exit(EXIT_FAILURE);
+	}
 	dup2(pipex->pipe_fd[0], STDIN_FILENO);
 	dup2(pipex->out_fd, STDOUT_FILENO);
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
 	execve(pipex->path_cmd2, pipex->cmd2, envp);
-	perror("Error : execve failed\n");
-	exit(EXIT_FAILURE);
+	ft_clean_up(pipex);
+	exit(127);
 }

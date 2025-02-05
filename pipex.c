@@ -12,8 +12,8 @@
 
 #include "pipex.h"
 
-// ./pipex infile.txt "ls -l" "wc -l" outfile.txt
-// < infile.txt ls -l | wc -l > outfile.txt
+// TO CHECK : exist status
+// !! \\ to check outfile when errors in infiles or cmd !!
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
@@ -119,7 +119,7 @@ char	*get_env_path(char *cmd, char **envp, t_pipex *pipex)
 		free(full_path);
 		i++;
 	}
-	perror("Error: command not found\n");
+	ft_printf("%s: command not found\n", cmd);
 	return (ft_free_split(paths), NULL);
 }
 

@@ -18,6 +18,7 @@
 # include <fcntl.h>
 # include <sys/wait.h>
 # include "libft/libft.h"
+# include "ft_printf/ft_printf.h"
 
 typedef struct s_pipex
 {
