@@ -109,11 +109,11 @@ char	*get_env_path(char *cmd, char **envp, t_pipex *pipex)
 	{
 		temp = ft_strjoin(paths[i], "/");
 		if (temp == NULL)
-			return(ft_free_split(paths), ft_clean_up(pipex), NULL);
+			return (ft_free_split(paths), ft_clean_up(pipex), NULL);
 		full_path = ft_strjoin(temp, cmd);
 		free(temp);
 		if (full_path == NULL)
-			return(ft_free_split(paths), ft_clean_up(pipex), NULL);
+			return (ft_free_split(paths), ft_clean_up(pipex), NULL);
 		if (access(full_path, F_OK | X_OK) == 0)
 			return (ft_free_split(paths), full_path);
 		free(full_path);
