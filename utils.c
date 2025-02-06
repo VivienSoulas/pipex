@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/06 09:01:14 by vsoulas           #+#    #+#             */
+/*   Updated: 2025/02/06 15:42:08 by vsoulas          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 // Permissions: 0644 (rw-r--r--)
@@ -9,6 +21,8 @@ void	initial_struct(char **argv, t_pipex *pipex)
 	pipex->outfile = argv[4];
 	pipex->cmd1 = NULL;
 	pipex->cmd2 = NULL;
+	pipex->path_cmd1 = NULL;
+	pipex->path_cmd2 = NULL;
 }
 
 // create a pipe and check for errors
@@ -51,6 +65,7 @@ void	ft_child1(t_pipex *pipex, char **envp)
 	pipex->in_fd = open(pipex->infile, O_RDONLY);
 	if (pipex->in_fd == -1)
 	{
+		ft_clean_up(pipex);
 		ft_printf("bash: %s: No such file or directory\n", pipex->infile);
 		exit(EXIT_FAILURE);
 	}
@@ -59,8 +74,8 @@ void	ft_child1(t_pipex *pipex, char **envp)
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
 	execve(pipex->path_cmd1, pipex->cmd1, envp);
-	ft_clean_up(pipex);
-	exit(127);
+	//ft_clean_up(pipex);
+	//exit(127);
 }
 
 void	ft_child2(t_pipex *pipex, char **envp)
@@ -68,6 +83,7 @@ void	ft_child2(t_pipex *pipex, char **envp)
 	pipex->out_fd = open(pipex->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pipex->out_fd == -1)
 	{
+		ft_clean_up(pipex);
 		ft_printf("Error: could not write in %s\n", pipex->outfile);
 		exit(EXIT_FAILURE);
 	}
@@ -76,6 +92,6 @@ void	ft_child2(t_pipex *pipex, char **envp)
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
 	execve(pipex->path_cmd2, pipex->cmd2, envp);
-	ft_clean_up(pipex);
+	//ft_clean_up(pipex);
 	exit(127);
 }

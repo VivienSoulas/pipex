@@ -6,7 +6,7 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 15:09:47 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/01/24 17:04:18 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/06 15:39:55 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 	if (pipex->cmd1 == NULL)
 	{
 		ft_free_split(pipex->cmd1);
-		exit(EXIT_FAILURE);
+		//exit(EXIT_FAILURE);
 	}
 	if (access(pipex->cmd1[0], F_OK | X_OK) == 0)
 	{
@@ -51,17 +51,17 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 		if (pipex->path_cmd1 == NULL)
 		{
 			ft_free_split(pipex->cmd1);
-			exit(EXIT_FAILURE);
+			//exit(EXIT_FAILURE);
 		}
 	}
 	else
 	{
 		pipex->path_cmd1 = get_env_path(pipex->cmd1[0], envp, pipex);
-		if (pipex->path_cmd1 == NULL)
-		{
-			ft_free_split(pipex->cmd1);
-			exit(EXIT_FAILURE);
-		}
+		//if (pipex->path_cmd1 == NULL)
+		//{
+		//	ft_free_split(pipex->cmd1);
+		//	//exit(EXIT_FAILURE);
+		//}
 	}
 }
 
@@ -79,11 +79,11 @@ void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
 	else
 	{
 		pipex->path_cmd2 = get_env_path(pipex->cmd2[0], envp, pipex);
-		if (pipex->cmd2 == NULL)
-		{
-			ft_clean_up(pipex);
-			exit(EXIT_FAILURE);
-		}
+		//if (pipex->cmd2 == NULL)
+		//{
+		//	ft_clean_up(pipex);
+		//	//exit(EXIT_FAILURE);
+		//}
 	}
 }
 
@@ -130,6 +130,7 @@ void	ft_create_fork(t_pipex *pipex, char **envp)
 {
 	pid_t	pid1;
 	pid_t	pid2;
+	int		status;
 
 	pid1 = fork();
 	if (pid1 == -1)
@@ -151,6 +152,7 @@ void	ft_create_fork(t_pipex *pipex, char **envp)
 		ft_child2(pipex, envp);
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
-	waitpid(pid1, NULL, 0);
-	waitpid(pid2, NULL, 0);
+	waitpid(pid2, &status, 0);
+	ft_clean_up(pipex);
+	exit(WEXITSTATUS(status));
 }
