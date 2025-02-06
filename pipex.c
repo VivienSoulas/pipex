@@ -6,14 +6,12 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 15:09:47 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/06 15:39:55 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/06 16:19:20 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-// TO CHECK : exist status
-// !! \\ to check outfile when errors in infiles or cmd !!
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
@@ -43,7 +41,7 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 	if (pipex->cmd1 == NULL)
 	{
 		ft_free_split(pipex->cmd1);
-		//exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 	if (access(pipex->cmd1[0], F_OK | X_OK) == 0)
 	{
@@ -51,18 +49,11 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 		if (pipex->path_cmd1 == NULL)
 		{
 			ft_free_split(pipex->cmd1);
-			//exit(EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 	}
 	else
-	{
 		pipex->path_cmd1 = get_env_path(pipex->cmd1[0], envp, pipex);
-		//if (pipex->path_cmd1 == NULL)
-		//{
-		//	ft_free_split(pipex->cmd1);
-		//	//exit(EXIT_FAILURE);
-		//}
-	}
 }
 
 void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
@@ -77,14 +68,7 @@ void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
 			ft_clean_up(pipex);
 	}
 	else
-	{
 		pipex->path_cmd2 = get_env_path(pipex->cmd2[0], envp, pipex);
-		//if (pipex->cmd2 == NULL)
-		//{
-		//	ft_clean_up(pipex);
-		//	//exit(EXIT_FAILURE);
-		//}
-	}
 }
 
 // getenv() gives string with all possible directories separated with :
@@ -136,7 +120,6 @@ void	ft_create_fork(t_pipex *pipex, char **envp)
 	if (pid1 == -1)
 	{
 		ft_clean_up(pipex);
-		perror("Couldn't fork pid1\n");
 		exit(EXIT_FAILURE);
 	}
 	if (pid1 == 0)
@@ -145,7 +128,6 @@ void	ft_create_fork(t_pipex *pipex, char **envp)
 	if (pid2 == -1)
 	{
 		ft_clean_up(pipex);
-		perror("Couldn't fork pid2\n");
 		exit(EXIT_FAILURE);
 	}
 	if (pid2 == 0)

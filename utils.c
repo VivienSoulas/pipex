@@ -6,7 +6,7 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:01:14 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/06 15:42:08 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/06 16:17:35 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,6 @@ void	ft_child1(t_pipex *pipex, char **envp)
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
 	execve(pipex->path_cmd1, pipex->cmd1, envp);
-	//ft_clean_up(pipex);
-	//exit(127);
 }
 
 void	ft_child2(t_pipex *pipex, char **envp)
@@ -92,6 +90,5 @@ void	ft_child2(t_pipex *pipex, char **envp)
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
 	execve(pipex->path_cmd2, pipex->cmd2, envp);
-	//ft_clean_up(pipex);
 	exit(127);
 }
