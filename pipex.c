@@ -6,15 +6,11 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 15:09:47 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/07 17:10:30 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/07 18:15:59 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-// PATH unset
-// "" empty command
-// DONE === dup2 protection === DONE
 
 int	main(int argc, char **argv, char **envp)
 {
@@ -26,9 +22,9 @@ int	main(int argc, char **argv, char **envp)
 		return (EXIT_FAILURE);
 	}
 	initial_struct(argv, &pipex);
+	ft_create_pipe(&pipex);
 	ft_check_args_cmd1(&pipex, envp);
 	ft_check_args_cmd2(&pipex, envp);
-	ft_create_pipe(&pipex);
 	ft_create_fork(&pipex, envp);
 	return (EXIT_SUCCESS);
 }
@@ -41,11 +37,6 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 	if (pipex->arg1 == NULL || pipex->arg1[0] == '\0')
 	{
 		pipex->path_cmd1 = NULL;
-		return ;
-	}
-	if (pipex->arg1 == NULL || pipex->arg1[0] == '\0')
-	{
-		ft_printf("Error: empty cmd\n");
 		return ;
 	}
 	pipex->cmd1 = ft_split(pipex->arg1, ' ');
@@ -68,8 +59,8 @@ void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
 {
 	if (pipex->arg2 == NULL || pipex->arg2[0] == '\0')
 	{
-		ft_clean_up(pipex);
-		exit(EXIT_FAILURE);
+		pipex->path_cmd2 = NULL;
+		return ;
 	}
 	pipex->cmd2 = ft_split(pipex->arg2, ' ');
 	if (pipex->cmd2 == NULL || pipex->cmd2[0][0] == '\0')
