@@ -6,7 +6,7 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:01:14 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/06 16:17:35 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/07 15:57:06 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ void	initial_struct(char **argv, t_pipex *pipex)
 	pipex->cmd2 = NULL;
 	pipex->path_cmd1 = NULL;
 	pipex->path_cmd2 = NULL;
+	pipex->pipe_fd[0] = -1;
+	pipex->pipe_fd[1] = -1;
 }
 
 // create a pipe and check for errors
@@ -34,7 +36,7 @@ void	ft_create_pipe(t_pipex *pipex)
 	if (pipe(pipex->pipe_fd) == -1)
 	{
 		ft_clean_up(pipex);
-		perror("Error: Could not create pipe\n");
+		perror("Pipex");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -71,9 +73,11 @@ void	ft_child1(t_pipex *pipex, char **envp)
 	}
 	dup2(pipex->in_fd, STDIN_FILENO);
 	dup2(pipex->pipe_fd[1], STDOUT_FILENO);
+	close(pipex->in_fd);
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
-	execve(pipex->path_cmd1, pipex->cmd1, envp);
+	if (pipex->path_cmd1 != NULL)
+		execve(pipex->path_cmd1, pipex->cmd1, envp);
 }
 
 void	ft_child2(t_pipex *pipex, char **envp)
@@ -85,10 +89,19 @@ void	ft_child2(t_pipex *pipex, char **envp)
 		ft_printf("Error: could not write in %s\n", pipex->outfile);
 		exit(EXIT_FAILURE);
 	}
-	dup2(pipex->pipe_fd[0], STDIN_FILENO);
-	dup2(pipex->out_fd, STDOUT_FILENO);
+	if (dup2(pipex->pipe_fd[0], STDIN_FILENO) == -1)
+	{
+		ft_clean_up(pipex);
+		exit(EXIT_FAILURE);
+	}
+	if (dup2(pipex->out_fd, STDOUT_FILENO) == -1)
+	{
+		ft_clean_up(pipex);
+		exit(EXIT_FAILURE);
+	}
+	close(pipex->out_fd);
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);
-	execve(pipex->path_cmd2, pipex->cmd2, envp);
-	exit(127);
+	if (pipex->path_cmd2 != NULL)
+		execve(pipex->path_cmd2, pipex->cmd2, envp);
 }

@@ -6,7 +6,7 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 14:09:33 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/06 15:02:29 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/07 17:10:44 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp);
 void	ft_check_args_cmd2(t_pipex *pipex, char **envp);
 char	*get_env_path(char *cmd, char **envp, t_pipex *pipex);
 void	ft_create_fork(t_pipex *pipex, char **envp);
+void	ft_fork_pid2(char **envp, t_pipex *pipex);
 void	ft_free_split(char **array);
 void	ft_clean_up(t_pipex *pipex);
 void	initial_struct(char **argv, t_pipex *pipex);

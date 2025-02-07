@@ -6,11 +6,15 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 15:09:47 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/06 16:19:20 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/07 17:10:30 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+// PATH unset
+// "" empty command
+// DONE === dup2 protection === DONE
 
 int	main(int argc, char **argv, char **envp)
 {
@@ -26,23 +30,27 @@ int	main(int argc, char **argv, char **envp)
 	ft_check_args_cmd2(&pipex, envp);
 	ft_create_pipe(&pipex);
 	ft_create_fork(&pipex, envp);
-	ft_clean_up(&pipex);
 	return (EXIT_SUCCESS);
 }
 
 // split the arguments into command(s) and argument(s)
 // check if the command is found and executable with access()
 // find the path of the command
-
-/* write perror messaged and exit failure */
 void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 {
-	pipex->cmd1 = ft_split(pipex->arg1, ' ');
-	if (pipex->cmd1 == NULL)
+	if (pipex->arg1 == NULL || pipex->arg1[0] == '\0')
 	{
-		ft_free_split(pipex->cmd1);
-		exit(EXIT_FAILURE);
+		pipex->path_cmd1 = NULL;
+		return ;
 	}
+	if (pipex->arg1 == NULL || pipex->arg1[0] == '\0')
+	{
+		ft_printf("Error: empty cmd\n");
+		return ;
+	}
+	pipex->cmd1 = ft_split(pipex->arg1, ' ');
+	if (pipex->cmd1 == NULL || pipex->cmd1[0][0] == '\0')
+		exit(EXIT_FAILURE);
 	if (access(pipex->cmd1[0], F_OK | X_OK) == 0)
 	{
 		pipex->path_cmd1 = ft_strdup(pipex->cmd1[0]);
@@ -58,52 +66,25 @@ void	ft_check_args_cmd1(t_pipex *pipex, char **envp)
 
 void	ft_check_args_cmd2(t_pipex *pipex, char **envp)
 {
+	if (pipex->arg2 == NULL || pipex->arg2[0] == '\0')
+	{
+		ft_clean_up(pipex);
+		exit(EXIT_FAILURE);
+	}
 	pipex->cmd2 = ft_split(pipex->arg2, ' ');
-	if (pipex->cmd2 == NULL)
+	if (pipex->cmd2 == NULL || pipex->cmd2[0][0] == '\0')
 		ft_clean_up(pipex);
 	if (access(pipex->cmd2[0], F_OK | X_OK) == 0)
 	{
 		pipex->path_cmd2 = ft_strdup(pipex->cmd2[0]);
 		if (pipex->path_cmd2 == NULL)
+		{
 			ft_clean_up(pipex);
+			exit(EXIT_FAILURE);
+		}
 	}
 	else
 		pipex->path_cmd2 = get_env_path(pipex->cmd2[0], envp, pipex);
-}
-
-// getenv() gives string with all possible directories separated with :
-// example = /usr/bin:/bin:/usr/bin/local
-// paths get all the directories paths by spltiting path_env in a 2D array
-// run through each paths joining the path given to the cmd given
-// checks if files/cmd is valid
-// if nothing checks in, free variables and return NULL
-char	*get_env_path(char *cmd, char **envp, t_pipex *pipex)
-{
-	char	*temp;
-	char	**paths;
-	char	*full_path;
-	int		i;
-
-	i = 0;
-	paths = ft_split(ft_find_path(envp), ':');
-	if (paths == NULL)
-		return (ft_free_split(paths), ft_clean_up(pipex), NULL);
-	while (paths[i])
-	{
-		temp = ft_strjoin(paths[i], "/");
-		if (temp == NULL)
-			return (ft_free_split(paths), ft_clean_up(pipex), NULL);
-		full_path = ft_strjoin(temp, cmd);
-		free(temp);
-		if (full_path == NULL)
-			return (ft_free_split(paths), ft_clean_up(pipex), NULL);
-		if (access(full_path, F_OK | X_OK) == 0)
-			return (ft_free_split(paths), full_path);
-		free(full_path);
-		i++;
-	}
-	ft_printf("%s: command not found\n", cmd);
-	return (ft_free_split(paths), NULL);
 }
 
 // fork first child process and check for errors
@@ -113,8 +94,6 @@ char	*get_env_path(char *cmd, char **envp, t_pipex *pipex)
 void	ft_create_fork(t_pipex *pipex, char **envp)
 {
 	pid_t	pid1;
-	pid_t	pid2;
-	int		status;
 
 	pid1 = fork();
 	if (pid1 == -1)
@@ -123,7 +102,19 @@ void	ft_create_fork(t_pipex *pipex, char **envp)
 		exit(EXIT_FAILURE);
 	}
 	if (pid1 == 0)
+	{
 		ft_child1(pipex, envp);
+		ft_clean_up(pipex);
+		exit(EXIT_FAILURE);
+	}
+	ft_fork_pid2(envp, pipex);
+}
+
+void	ft_fork_pid2(char **envp, t_pipex *pipex)
+{
+	pid_t	pid2;
+	int		status;
+
 	pid2 = fork();
 	if (pid2 == -1)
 	{
@@ -131,10 +122,12 @@ void	ft_create_fork(t_pipex *pipex, char **envp)
 		exit(EXIT_FAILURE);
 	}
 	if (pid2 == 0)
+	{
 		ft_child2(pipex, envp);
-	close(pipex->pipe_fd[0]);
-	close(pipex->pipe_fd[1]);
-	waitpid(pid2, &status, 0);
+		ft_clean_up(pipex);
+		exit(127);
+	}
 	ft_clean_up(pipex);
+	waitpid(pid2, &status, 0);
 	exit(WEXITSTATUS(status));
 }
