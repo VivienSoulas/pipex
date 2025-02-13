@@ -6,7 +6,7 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 09:01:14 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/07 17:57:19 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/13 14:34:23 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,16 @@ void	ft_child1(t_pipex *pipex, char **envp)
 		ft_printf("bash: %s: No such file or directory\n", pipex->infile);
 		exit(EXIT_FAILURE);
 	}
-	dup2(pipex->in_fd, STDIN_FILENO);
-	dup2(pipex->pipe_fd[1], STDOUT_FILENO);
+	if (dup2(pipex->in_fd, STDIN_FILENO) == -1)
+	{
+		ft_clean_up(pipex);
+		exit(EXIT_FAILURE);
+	}
+	if (dup2(pipex->pipe_fd[1], STDOUT_FILENO) == -1)
+	{
+		ft_clean_up(pipex);
+		exit(EXIT_FAILURE);
+	}
 	close(pipex->in_fd);
 	close(pipex->pipe_fd[0]);
 	close(pipex->pipe_fd[1]);

@@ -6,10 +6,11 @@
 /*   By: vsoulas <vsoulas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 15:09:47 by vsoulas           #+#    #+#             */
-/*   Updated: 2025/02/07 18:15:59 by vsoulas          ###   ########.fr       */
+/*   Updated: 2025/02/13 14:32:57 by vsoulas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+// unset PATH goes into seg fault
 #include "pipex.h"
 
 int	main(int argc, char **argv, char **envp)
